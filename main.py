@@ -4,6 +4,7 @@ import customtkinter as ctk
 from PIL import Image
 from io import BytesIO
 import webbrowser
+import urllib.parse
 
 
 headers = {
@@ -20,10 +21,13 @@ titulo = soup.find("h1", id="firstHeading").text
 
 #pagina de busqueda
 def newpage(solicitud):
-    searchpage = ctk.CTk()
-    searchpage.geometry("1000x615")
+    searchpage = ctk.CTkToplevel()
+    searchpage.configure(fg_color="#1B393A")
+    
+    searchpage.geometry("1200x615")
     soup = BeautifulSoup(solicitud.text, "lxml")
     title = soup.find("h1", id="firstHeading").text
+    searchpage.title(title)
 
     imagenes = []
     videos = []
@@ -41,10 +45,10 @@ def newpage(solicitud):
     for video in soup.find_all("video"):
         source = video.find("source")
         if source:
-            v_src = video.find("source")
+            v_src = source.get("src")
             if v_src.startswith("//"):
                 v_src = "https:" + v_src
-            videos.append(src)
+            videos.append(v_src)
 
 
     for a in soup.find_all("a", href=True):
@@ -58,9 +62,15 @@ def newpage(solicitud):
             links.append(href)
 
 
+
+    marco_padre = ctk.CTkFrame(searchpage, fg_color="transparent")
+    marco_padre.pack(fill="both", expand=True, padx=20, pady=20)
+
+    marco_arriba = ctk.CTkFrame(marco_padre, fg_color="transparent")
+    marco_arriba.pack(pady=0, side="top", fill="x")
    
-    marco_abajo = ctk.CTkFrame(searchpage, fg_color="transparent")
-    marco_abajo.pack(pady=0)
+    marco_abajo = ctk.CTkFrame(marco_padre, fg_color="transparent")
+    marco_abajo.pack(pady=40,side="top", fill="x")
 
     marco_videos = ctk.CTkFrame(marco_abajo, fg_color="transparent")
     marco_videos.pack(pady=0, side="left")
@@ -74,8 +84,7 @@ def newpage(solicitud):
 
 
 
-    marco_arriba = ctk.CTkFrame(searchpage, fg_color="transparent")
-    marco_arriba.pack(pady=0)
+    
 
     marco_links = ctk.CTkFrame(marco_arriba, fg_color="transparent")
     marco_links.pack(pady=0, side="right")
@@ -85,25 +94,28 @@ def newpage(solicitud):
     marco_titulo.pack(pady=0, side="left")
 
 
-    titulomp = ctk.CTkLabel(marco_titulo,text="WikiWrapTool ", font=("Segoe UI", 40, "bold"), anchor="e" )
-    titulomp.pack(side="left",pady=0)
-    titulomp = ctk.CTkLabel(marco_titulo,text=title, font=("Segoe UI", 35, "bold"), anchor="e" )
-    titulomp.pack(side="left",pady=0)
-
-
+    
+    titulomp = ctk.CTkLabel(marco_titulo,text=title, font=("Segoe UI", 38, "bold"), anchor="e" )
+    titulomp.pack(side="right",pady=0)
+    
 
 
     scroll_links = ctk.CTkScrollableFrame(marco_links, width=420, height=220)
     scroll_links.pack(fill="both", expand=True)
 
+
+    
+
     def abrir(url_destino):
         webbrowser.open(url_destino)
+
+
         
     for link in links:
         btn_link = ctk.CTkButton(
             scroll_links, 
             text=link, 
-            font=("Arial", 18),
+            font=("Arial", 15),
             fg_color="transparent",
             text_color="#64B5F6",
             hover_color="#2B2B3D",
@@ -112,7 +124,49 @@ def newpage(solicitud):
         )
         btn_link.pack(fill="x", pady=2, padx=5)
 
-    searchpage.mainloop()
+
+
+    scroll_imagenes = ctk.CTkScrollableFrame(marco_imagenes, width=420, height=220)
+    scroll_imagenes.pack(fill="both", expand=True, side="right")
+
+    for url_img in imagenes:
+        try:
+            response = requests.get(url_img, headers=headers, timeout=3)
+            if response.status_code == 200:
+                img_data = Image.open(BytesIO(response.content))
+
+                ctk_img = ctk.CTkImage(
+                    light_image=img_data, 
+                    dark_image=img_data, 
+                    size=(120, 120)
+                )
+
+                lbl_foto = ctk.CTkLabel(scroll_imagenes, image=ctk_img, text="")
+                lbl_foto.pack(pady=8)
+                searchpage.update()
+        except:
+            continue
+
+    scroll_videos = ctk.CTkScrollableFrame(marco_videos, width=420, height=220)
+    scroll_videos.pack(fill="both", expand=True)
+
+    
+
+    for i, url_video in enumerate(videos, start=1):
+        nombre_raw = url_video.split("/")[-1]
+        nombre_limpio = urllib.parse.unquote(nombre_raw).replace("_", " ")
+        btn_video = ctk.CTkButton(
+                scroll_videos,
+                text=f"Video: {nombre_limpio}",
+                font=("Segoe UI", 12, "bold"),
+                fg_color="#2B2B3D",
+                hover_color="#3E3E55",
+                text_color="#00E676",
+                anchor="w",
+                command=lambda v=url_video: webbrowser.open(v)
+            )
+        btn_video.pack(fill="x", pady=5, padx=5)
+    
 
 
 
