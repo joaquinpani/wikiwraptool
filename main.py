@@ -18,10 +18,24 @@ titulo = soup.find("h1", id="firstHeading").text
 
 
 #pagina de busqueda
-def newpage():
+def newpage(solicitud):
     searchpage = ctk.CTk()
+    searchpage.geometry("1000x615")
+    soup = BeautifulSoup(respuesta.text, "lxml")
+    title = soup.find("h1", id="firstHeading").text
 
+    imagenes = []
+    videos = []
+    links = []
 
+    for img in soup.find_all_next("img"):
+        src = img.get("src")
+        if src:
+            if src.startswith("//"):
+                src = "https:" + src
+            src.append(imagenes)
+    searchpage.mainloop()
+    print(imagenes)
 
 
 
@@ -48,7 +62,7 @@ mainpage.geometry("1000x615")
 
 titulomp = ctk.CTkLabel(marco_titulo,text="WikiWrapTool", font=("Segoe UI", 50, "bold"), anchor="e" )
 titulomp.pack(side="left",pady=0)
-logo_imagen = ctk.CTkLabel(marco_titulo, image=ctk.CTkImage(light_image=Image.open("wikitool/spider.png"), dark_image=Image.open("wikitool/spider.png"), size=(130,80)), text="")
+logo_imagen = ctk.CTkLabel(marco_titulo, image=ctk.CTkImage(light_image=Image.open("wikitool/spider.png"), dark_image=Image.open("wikitool/spider.png"), size=(140,80)), text="")
 logo_imagen.pack(side="right")
 
 mainpage.configure(fg_color="#1F1F2E")
@@ -58,9 +72,10 @@ mainpage.configure(fg_color="#1F1F2E")
 def boton_buscar():
     url = insertar_url.get().strip()
     try:    
+        
         solicitud = requests.get(url,headers=headers)
-        if solicitud == 200:
-            newpage()
+        if solicitud.status_code == 200:
+            newpage(solicitud)
     except:
         error = ctk.CTk()
         mte = ctk.CTkFrame(error, fg_color="transparent")
@@ -71,7 +86,7 @@ def boton_buscar():
         titulomp.pack(pady=0,side="right")
         error.geometry("800x150")
         error.configure(fg_color="#FD6161")
-        e = "error searching: " + url
+        e = "Error searching: " + url
         error.title(e)
         error.mainloop()
 
