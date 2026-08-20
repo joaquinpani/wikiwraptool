@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import customtkinter as ctk
 from PIL import Image
 from io import BytesIO
+import webbrowser
 
 
 headers = {
@@ -21,23 +22,62 @@ titulo = soup.find("h1", id="firstHeading").text
 def newpage(solicitud):
     searchpage = ctk.CTk()
     searchpage.geometry("1000x615")
-    soup = BeautifulSoup(respuesta.text, "lxml")
+    soup = BeautifulSoup(solicitud.text, "lxml")
     title = soup.find("h1", id="firstHeading").text
 
     imagenes = []
     videos = []
     links = []
 
-    for img in soup.find_all_next("img"):
+    for img in soup.find_all("img"):
         src = img.get("src")
         if src:
             if src.startswith("//"):
                 src = "https:" + src
-            src.append(imagenes)
+            imagenes.append(src)
+    
+
+    
+    for video in soup.find_all("video"):
+        source = video.find("source")
+        if source:
+            v_src = video.find("source")
+            if v_src.startswith("//"):
+                v_src = "https:" + v_src
+            videos.append(src)
+
+
+    for a in soup.find_all("a", href=True):
+        href = a.get("href")
+        if href.startswith("/wiki/"):
+            if ":" not in href:
+                link = "https://es.wikipedia.org" + href
+                links.append(link)
+               
+        elif href.startswith("http://") or href.startswith("https://"):
+            links.append(href)
+   
+
+
+
+
+
+
+
+
+    marco_titulo = ctk.CTkFrame(searchpage, fg_color="transparent")
+    marco_titulo.pack(pady=0)
+
+
+    titulomp = ctk.CTkLabel(marco_titulo,text="WikiWrapTool ", font=("Segoe UI", 40, "bold"), anchor="e" )
+    titulomp.pack(side="left",pady=0)
+    titulomp = ctk.CTkLabel(marco_titulo,text=title, font=("Segoe UI", 35, "bold"), anchor="e" )
+    titulomp.pack(side="left",pady=0)
+
+
+
+
     searchpage.mainloop()
-    print(imagenes)
-
-
 
 
 
