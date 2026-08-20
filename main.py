@@ -56,17 +56,33 @@ def newpage(solicitud):
                
         elif href.startswith("http://") or href.startswith("https://"):
             links.append(href)
+
+
    
+    marco_abajo = ctk.CTkFrame(searchpage, fg_color="transparent")
+    marco_abajo.pack(pady=0)
+
+    marco_videos = ctk.CTkFrame(marco_abajo, fg_color="transparent")
+    marco_videos.pack(pady=0, side="left")
+
+
+    marco_imagenes = ctk.CTkFrame(marco_abajo, fg_color="transparent")
+    marco_imagenes.pack(pady=0, side="right")
 
 
 
 
 
 
+    marco_arriba = ctk.CTkFrame(searchpage, fg_color="transparent")
+    marco_arriba.pack(pady=0)
+
+    marco_links = ctk.CTkFrame(marco_arriba, fg_color="transparent")
+    marco_links.pack(pady=0, side="right")
 
 
-    marco_titulo = ctk.CTkFrame(searchpage, fg_color="transparent")
-    marco_titulo.pack(pady=0)
+    marco_titulo = ctk.CTkFrame(marco_arriba, fg_color="transparent")
+    marco_titulo.pack(pady=0, side="left")
 
 
     titulomp = ctk.CTkLabel(marco_titulo,text="WikiWrapTool ", font=("Segoe UI", 40, "bold"), anchor="e" )
@@ -76,6 +92,25 @@ def newpage(solicitud):
 
 
 
+
+    scroll_links = ctk.CTkScrollableFrame(marco_links, width=420, height=220)
+    scroll_links.pack(fill="both", expand=True)
+
+    def abrir(url_destino):
+        webbrowser.open(url_destino)
+        
+    for link in links:
+        btn_link = ctk.CTkButton(
+            scroll_links, 
+            text=link, 
+            font=("Arial", 18),
+            fg_color="transparent",
+            text_color="#64B5F6",
+            hover_color="#2B2B3D",
+            anchor="w",
+            command=lambda l=link: abrir(l)
+        )
+        btn_link.pack(fill="x", pady=2, padx=5)
 
     searchpage.mainloop()
 
