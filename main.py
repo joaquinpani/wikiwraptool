@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 import webbrowser
 import urllib.parse
+import random
 
 
 headers = {
@@ -22,7 +23,17 @@ titulo = soup.find("h1", id="firstHeading").text
 #pagina de busqueda
 def newpage(solicitud):
     searchpage = ctk.CTkToplevel()
-    searchpage.configure(fg_color="#1B393A")
+    numero = random.randint(0, 3)
+    match numero:
+        case 0:
+            searchpage.configure(fg_color="#1B393A")
+        case 1:
+                    searchpage.configure(fg_color="#22101D")
+        case 2:
+                    searchpage.configure(fg_color="#182414")
+        case 3:
+                    searchpage.configure(fg_color="#38341A")
+   
     
     searchpage.geometry("1200x615")
     soup = BeautifulSoup(solicitud.text, "lxml")
